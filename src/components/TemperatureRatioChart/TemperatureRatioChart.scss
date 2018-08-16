@@ -1,0 +1,55 @@
+.temperature-ratio-chart-container {
+    position: absolute;
+    top: 12px;
+    left: 50px;
+    width: 600px;
+    height: 300px;
+    padding: 20px;
+    background-color: white;
+    select {
+        position: absolute;
+        right: 15px;
+        top: 15px;
+	}
+	
+	.temperature-ratio-chart__location {
+		position: absolute;
+		right: 15px;
+		bottom: 35px;
+
+		> * {
+			display: inline-block;
+			margin-right: 10px;
+		}
+
+		input {
+			width: 70px;
+		}
+
+		label {
+			font-size: 13px;
+		}
+	}
+
+    .nvd3 text {
+        font-size: 12px !important;
+    }
+    .nvd3 .title {
+        font-size: 12px !important;
+    }
+   
+    .nvd3 .nv-axis path {
+        fill: #dbe4e8;
+        stroke: #dbe4e8;
+        stroke-opacity: 1;
+    }
+    .nv-axis line {
+        stroke: #ddd;
+        fill: white;
+    }
+    .nv-axis path.domain {
+        stroke-opacity: .5;
+        stroke-width: 1px;
+        fill: white;
+    }
+}

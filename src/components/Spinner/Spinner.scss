@@ -1,0 +1,36 @@
+.spinner {
+    position: absolute;
+    display: none;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    top: 50%;
+    
+    &.spinner--is-shown {
+        display: block;
+
+        ~ * {
+            display: none;
+        }
+    }
+
+    &:after {
+        content: " ";
+        display: block;
+        width: 30px;
+        height: 30px;
+        margin: 1px;
+        border-radius: 50%;
+        border: 5px solid #cef;
+        border-color: #cef transparent #cef transparent;
+        animation: spinner-animation 1.2s linear infinite;
+    }
+      
+    @keyframes spinner-animation {
+        0% {
+            transform: rotate(0deg);
+        }
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+}
