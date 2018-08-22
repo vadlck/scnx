@@ -736,8 +736,8 @@ a {
     right: 15px;
     top: 15px; }
   .temperature-ratio-chart-container .nv-group.nv-series-0 {
-    fill-opacity: .6 !important;
-    stroke-opacity: .6 !important; }
+    fill-opacity: 1 !important;
+    stroke-opacity: 1 !important; }
   .temperature-ratio-chart-container .nv-y2 {
     display: none !important; }
   .temperature-ratio-chart-container .temperature-ratio-chart__location {

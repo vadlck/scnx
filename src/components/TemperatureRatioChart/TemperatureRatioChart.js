@@ -16,7 +16,7 @@ class TemperatureRatioChart extends Component {
 				.datum(nextProps.temperatureRatioChartData)
 				.call(this.nvChart)
 
-				let domain = nextProps.temperatureRatioChartData.length
+			let domain = nextProps.temperatureRatioChartData.length
 				&& [
 					Math.min(nextProps.temperatureRatioChartData[0].min, nextProps.temperatureRatioChartData[1].min) - 2,
 					Math.max(nextProps.temperatureRatioChartData[0].max, nextProps.temperatureRatioChartData[1].max) + 2,
@@ -27,9 +27,70 @@ class TemperatureRatioChart extends Component {
 
 				this.nvChart.yDomain1(domain);
 				this.nvChart.yDomain2(domain);
+
 				this.nvChart.update();
+				this.whenUpdate(nextProps);
 			}
 		}
+	}
+
+	whenUpdate(nextProps) {
+		setTimeout(() => {
+			setTimeout(() => {
+				let count = nextProps.temperatureRatioChartData[0].values.length;
+				for (let k = 1; count + 1 > k; k++) {
+					let elems = document.querySelectorAll(`.nv-bar:nth-child(${k})`);
+
+					if(elems.length == 1) continue;
+
+					let maxEl;
+
+					if (nextProps.temperatureRatioChartData[0].values[k - 1] > 0
+						&& nextProps.temperatureRatioChartData[0].values[k - 1] < 0
+						|| nextProps.temperatureRatioChartData[0].values[k - 1] > 0
+						&& nextProps.temperatureRatioChartData[0].values[k - 1] < 0) {
+						continue;
+					}
+
+					let minhiegh = Array.prototype.reduce.call(elems, (mh, el, i) => {
+						if (!mh) {
+							mh = el.getAttribute('height');
+							return mh;
+						} else {
+							let eh = el.getAttribute('height');
+							if (parseFloat(eh) < parseFloat(mh)) {
+								maxEl = elems[0];
+								return eh;
+							} else {
+								maxEl = el
+
+								return mh;
+							}
+
+							return eh < mh ? eh : mh
+						}
+
+						return mh;
+					}, null)
+
+					if (maxEl === elems[0]) {
+						continue;
+					}
+
+					let maxH = maxEl.getAttribute('height');
+					let maxTransform = maxEl.getAttribute('transform').split(',');
+					let t = parseFloat(maxTransform[1])
+
+					let u = maxEl.getAttribute('y');
+					maxTransform[1] = u > 70
+						? parseFloat(minhiegh) + ')'
+						: '0)';
+
+					maxEl.setAttribute('height', maxH - minhiegh);
+					maxEl.setAttribute('transform', maxTransform.join(','));
+				}
+			}, 1000);
+		}, 600);
 	}
 
 	componentDidMount() {
@@ -69,6 +130,12 @@ class TemperatureRatioChart extends Component {
 					bottom: -80,
 					right: 0
 				});
+			
+			chart.legend.dispatch.on('legendClick', () => {
+				setTimeout(() => {
+					this.whenUpdate(this.props)
+				}, 500)
+			});
 
 			const d3Chart = d3.select(node);
 
@@ -83,6 +150,7 @@ class TemperatureRatioChart extends Component {
 
 			return chart;
 		});
+
 	}
 
 	renderLocation() {
