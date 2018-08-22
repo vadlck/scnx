@@ -9,9 +9,6 @@ function getTemperatureRatioChartData(state) {
 		|| !pointTemperaturesGroupedByYear[activeYear])
 		return [];
 
-	const months = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май',
-		'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'].map(m => m.slice(0, 3));
-
 	function calcAvgTempsGroupedByMonth(res, { properties }) {
 		let month = moment(properties.Date).month();
 
@@ -32,39 +29,60 @@ function getTemperatureRatioChartData(state) {
 	const previosYearAvgSum = pointTemperaturesGroupedByYear[previousYear].reduce(calcAvgTempsGroupedByMonth, {});
 
 	const getSeria = func =>
-		Object.keys(currentYearAvgSum).reduce(func, []);
+		Object.keys(currentYearAvgSum).reduce(func, { min: null, max: null, values: [] });
 
-	const currentYearAvgSumFunc = (res, month) => {
+	const currentYearAvgSumFunc = (res, month, i) => {
 		let { divider, sumOfAvgTemps } = currentYearAvgSum[month];
-		res.push({
-			x: months[month],
-			y: sumOfAvgTemps / divider
+		let y = +((sumOfAvgTemps / divider).toFixed(1));
+
+		if (res.min > y || !res.min)
+			res.min = y;
+
+		if (res.max < y || !res.max)
+			res.max = y;
+
+		res.values.push({
+			x: month,
+			y: (sumOfAvgTemps / divider).toFixed(1),
 		})
 
 		return res;
 	}
 
-	const normYearAvgSumFunc = (res, month) => {
+	const normYearAvgSumFunc = (res, month, i) => {
 		const divider = currentYearAvgSum[month].divider + previosYearAvgSum[month].divider;
-		const sumOfAvgTemps = currentYearAvgSum[month].sumOfAvgTemps + previosYearAvgSum[month].sumOfAvgTemps
+		const sumOfAvgTemps = currentYearAvgSum[month].sumOfAvgTemps + previosYearAvgSum[month].sumOfAvgTemps;
 
-		res.push({
-			x: months[month],
-			y: sumOfAvgTemps / divider
+		let y = +((sumOfAvgTemps / divider).toFixed(1));
+	
+		if (res.min > y || !res.min)
+			res.min = y;
+
+		if (res.max < y || !res.max)
+			res.max = y;
+
+		res.values.push({
+			x: month,
+			y: (sumOfAvgTemps / divider).toFixed(1),
 		})
 
 		return res;
-	}
+	};
+
 
 	return [{
 		key: activeYear,
 		color: '#f06b6c',
-		values: getSeria(currentYearAvgSumFunc)
+		yAxis: 1,
+		type: 'bar',
+		...getSeria(currentYearAvgSumFunc)
 	},
 	{
 		key: 'Среднемесячная норма',
 		color: '#f9c4c4',
-		values: getSeria(normYearAvgSumFunc)
+		type: 'bar',
+		yAxis: 2,
+		...getSeria(normYearAvgSumFunc)
 	}];
 };
 

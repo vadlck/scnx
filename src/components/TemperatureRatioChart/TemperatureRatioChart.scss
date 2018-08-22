@@ -10,34 +10,35 @@
         position: absolute;
         right: 15px;
         top: 15px;
-	}
-	
-	.temperature-ratio-chart__location {
-		position: absolute;
-		right: 15px;
-		bottom: 35px;
-
-		> * {
-			display: inline-block;
-			margin-right: 10px;
-		}
-
-		input {
-			width: 70px;
-		}
-
-		label {
-			font-size: 13px;
-		}
-	}
-
+    }
+    .nv-group.nv-series-0 {
+        fill-opacity: .6 !important;
+        stroke-opacity: .6 !important;
+    }
+    .nv-y2 {
+        display: none !important;
+    }
+    .temperature-ratio-chart__location {
+        position: absolute;
+        right: 15px;
+        bottom: 35px;
+        >* {
+            display: inline-block;
+            margin-right: 10px;
+        }
+        input {
+            width: 70px;
+        }
+        label {
+            font-size: 13px;
+        }
+    }
     .nvd3 text {
         font-size: 12px !important;
     }
     .nvd3 .title {
         font-size: 12px !important;
     }
-   
     .nvd3 .nv-axis path {
         fill: #dbe4e8;
         stroke: #dbe4e8;

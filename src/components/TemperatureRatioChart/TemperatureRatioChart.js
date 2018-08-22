@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import ReactDOM from 'react-dom';
-import nvd3 from 'nvd3';
 import d3 from 'd3';
+import nvd3 from '../../libs/nvd3';
 import Spinner from '../Spinner/Spinner';
 
 class TemperatureRatioChart extends Component {
@@ -11,9 +11,24 @@ class TemperatureRatioChart extends Component {
 
 	componentWillReceiveProps(nextProps) {
 		if (nextProps.temperatureRatioChartData !== this.props.temperatureRatioChartData) {
+
 			this.d3Chart
 				.datum(nextProps.temperatureRatioChartData)
 				.call(this.nvChart)
+
+				let domain = nextProps.temperatureRatioChartData.length
+				&& [
+					Math.min(nextProps.temperatureRatioChartData[0].min, nextProps.temperatureRatioChartData[1].min) - 2,
+					Math.max(nextProps.temperatureRatioChartData[0].max, nextProps.temperatureRatioChartData[1].max) + 2,
+				];
+
+			if (domain) {
+				domain = [domain[0].toFixed(), domain[1].toFixed()];
+
+				this.nvChart.yDomain1(domain);
+				this.nvChart.yDomain2(domain);
+				this.nvChart.update();
+			}
 		}
 	}
 
@@ -21,39 +36,42 @@ class TemperatureRatioChart extends Component {
 		const temperatureRatioChartRef = this.refs['temperature-ratio-chart'];
 		const node = ReactDOM.findDOMNode(temperatureRatioChartRef);
 
+		const months = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май',
+			'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'].map(m => m.slice(0, 3));
+
 		nvd3.addGraph(() => {
-			const chart = nvd3.models.multiBarChart()
-				.margin({
-					top: 40,
-					right: 30,
-					bottom: 0,
-					left: 30
+
+			const chart = nvd3.models.multiChart()
+				.options({
+					reduceXTicks: false,
+					legendPosition: 'bottom',
+					legendRightAxisHint: ''
 				})
-				.reduceXTicks(false)
-				.showControls(false)
-				.stacked(true)
-				.legendPosition('bottom')
-				.forceY([-50, 50])
-				.groupSpacing(0.1);
-
-			chart.yAxis
-				.tickValues([-50, -25, 0, 25, 50])
-				.tickFormat(v => v.toFixed())
-
-			chart.legend.rightAlign(false)
+				.noData('Нет данных')
 				.margin({
 					top: 0,
+					right: 40,
+					bottom: 60,
+					left: 40
+				})
+
+			chart.xAxis
+				.ticks(12)
+				.tickFormat(function (month) {
+					return months[month];
+				})
+
+			chart.legend
+				.alignPos('left')
+				.margin({
+					top: 115,
 					left: 0,
-					bottom: 10,
+					bottom: -80,
+					right: 0
 				});
 
-			chart.tooltip.contentGenerator(function (point) {
-				return `<div style="background-color: #eff4f7;">
-					<h2>${point.data.key}:${point.data.y.toFixed(4)}</h2>
-				</div>`;
-			})
-
 			const d3Chart = d3.select(node);
+
 			d3Chart
 				.datum(this.props.temperatureRatioChartData)
 				.call(chart);
