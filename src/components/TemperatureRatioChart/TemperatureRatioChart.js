@@ -108,6 +108,7 @@ class TemperatureRatioChart extends Component {
 					legendPosition: 'bottom',
 					legendRightAxisHint: ''
 				})
+				.duration(0)
 				.noData('Нет данных')
 				.margin({
 					top: 0,
