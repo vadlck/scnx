@@ -9477,7 +9477,11 @@ let t= (function () {
 					that = this;
 				nv.utils.initSVG(container);
 
-				chart.update = function () { container.transition().call(chart); };
+				chart.update = function () { 
+					let t = container.transition().call(chart);
+					//chart.dispatch 
+				};
+				
 				chart.container = this;
 
 				var availableWidth = nv.utils.availableWidth(width, container, margin),

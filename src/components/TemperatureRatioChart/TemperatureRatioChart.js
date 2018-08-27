@@ -10,7 +10,7 @@ class TemperatureRatioChart extends Component {
 	}
 
 	componentWillReceiveProps(nextProps) {
-		if (nextProps.temperatureRatioChartData !== this.props.temperatureRatioChartData) {
+		if (!nextProps.isLoading && nextProps.temperatureRatioChartData !== this.props.temperatureRatioChartData) {
 
 			this.d3Chart
 				.datum(nextProps.temperatureRatioChartData)
@@ -27,70 +27,83 @@ class TemperatureRatioChart extends Component {
 
 				this.nvChart.yDomain1(domain);
 				this.nvChart.yDomain2(domain);
-
 				this.nvChart.update();
+
 				this.whenUpdate(nextProps);
 			}
 		}
 	}
 
 	whenUpdate(nextProps) {
-		setTimeout(() => {
-			setTimeout(() => {
-				let count = nextProps.temperatureRatioChartData[0].values.length;
-				for (let k = 1; count + 1 > k; k++) {
-					let elems = document.querySelectorAll(`.nv-bar:nth-child(${k})`);
+		let y = this.nvChart.yAxis1.scale();
+		let getY = function (d) { return d.y }
+		let n = 0;
+		let x = this.nvChart.xAxis.scale();
+		let getX = function (d) { return d.x }
 
-					if(elems.length == 1) continue;
+		let series1 = [
+			...nextProps.temperatureRatioChartData[0].values,
+			...nextProps.temperatureRatioChartData[1].values
+		]
 
-					let maxEl;
+		let series = series1.map((d, i) => Math.max(Math.abs(y(getY(d, i)) - y(0)), 1) || 0)
 
-					if (nextProps.temperatureRatioChartData[0].values[k - 1] > 0
-						&& nextProps.temperatureRatioChartData[0].values[k - 1] < 0
-						|| nextProps.temperatureRatioChartData[0].values[k - 1] > 0
-						&& nextProps.temperatureRatioChartData[0].values[k - 1] < 0) {
-						continue;
-					}
+		let len = nextProps.temperatureRatioChartData[0].values.length * 2;
 
-					let minhiegh = Array.prototype.reduce.call(elems, (mh, el, i) => {
-						if (!mh) {
-							mh = el.getAttribute('height');
-							return mh;
-						} else {
-							let eh = el.getAttribute('height');
-							if (parseFloat(eh) < parseFloat(mh)) {
-								maxEl = elems[0];
-								return eh;
-							} else {
-								maxEl = el
+		let k = new Array(len);
+		let test = {};
 
-								return mh;
-							}
+		Array.apply(null, { length: len / 2 })
+			.map((item, i) => {
+				let s1 = series[i];
+				let s2 = series[i + len / 2];
 
-							return eh < mh ? eh : mh
-						}
+				if (parseInt(series1[i].y) > 0 && parseInt(series1[i + len / 2].y) < 0
+					|| parseInt(series1[i].y) < 0 && parseInt(series1[i + len / 2].y) > 0) {
 
-						return mh;
-					}, null)
+					k[i] = s1;
+					k[i + len / 2] = s2;
 
-					if (maxEl === elems[0]) {
-						continue;
-					}
-
-					let maxH = maxEl.getAttribute('height');
-					let maxTransform = maxEl.getAttribute('transform').split(',');
-					let t = parseFloat(maxTransform[1])
-
-					let u = maxEl.getAttribute('y');
-					maxTransform[1] = u > 70
-						? parseFloat(minhiegh) + ')'
-						: '0)';
-
-					maxEl.setAttribute('height', maxH - minhiegh);
-					maxEl.setAttribute('transform', maxTransform.join(','));
+					return;
 				}
-			}, 1000);
-		}, 600);
+
+				if (s1 < 0) {
+					if ((-1 * s1) < (-1 * s2)) {
+						k[i] = s1;
+						k[i + len / 2] = s2 - (s1 * -1);
+					} else {
+						k[i] = s1 - (s2 * -1);
+						k[i + len / 2] = s2;
+					}
+
+				} else {
+					if (s1 < s2) {
+						k[i] = s1;
+						k[i + len / 2] = s2 - s1;
+
+						test[i + len / 2] = series1[i].y < 0 && s1;
+
+					} else {
+						k[i] = s1 - s2;
+						k[i + len / 2] = s2;
+
+						test[i] = series1[i].y < 0 && s2;
+					}
+				}
+			})
+
+		setTimeout(() => {
+			this.d3Chart
+				.selectAll('.nv-bar')
+				.each(function (el, i) {
+					this.setAttribute('height', k[i]);
+					if (test[i]) {
+						let maxTransform = this.getAttribute('transform').split(',');
+						maxTransform[1] = parseFloat(test[i]) + ')';
+						this.setAttribute('transform', maxTransform.join(','));
+					}
+				})
+		}, 500);
 	}
 
 	componentDidMount() {
@@ -131,11 +144,10 @@ class TemperatureRatioChart extends Component {
 					bottom: -80,
 					right: 0
 				});
-			
-			chart.legend.dispatch.on('legendClick', () => {
-				setTimeout(() => {
+
+			chart.legend.dispatch.on('legendClick', serie => {
+				if (serie.disabled)
 					this.whenUpdate(this.props)
-				}, 500)
 			});
 
 			const d3Chart = d3.select(node);
@@ -144,14 +156,12 @@ class TemperatureRatioChart extends Component {
 				.datum(this.props.temperatureRatioChartData)
 				.call(chart);
 
-			nvd3.utils.windowResize(chart.update);
 
 			this.nvChart = chart;
 			this.d3Chart = d3Chart;
 
 			return chart;
 		});
-
 	}
 
 	renderLocation() {

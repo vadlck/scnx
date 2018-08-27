@@ -43,7 +43,6 @@ class Map extends Component {
 					? ++locs[0]
 					: +`${locs[0]}.${rightPart}`;
 			}
-
 			this.props.fetchPointTemperature(formatter(lat), formatter(lng));
 		})
 	}
