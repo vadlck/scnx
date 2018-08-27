@@ -103,7 +103,7 @@ class TemperatureRatioChart extends Component {
 						this.setAttribute('transform', maxTransform.join(','));
 					}
 				})
-		}, 500);
+		}, 600);
 	}
 
 	componentDidMount() {
