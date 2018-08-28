@@ -1,5 +1,6 @@
 import axios from 'axios';
 import * as types from './types';
+import initialState from './initialState';
 
 async function getLocationPointID(lat, lng) {
 	const urlOfGetPointIDByLocation = `https://maps.kosmosnimki.ru/rest/ver1/layers/35FB2C338FED4B64B7A326FBFE54BE73/
@@ -9,27 +10,18 @@ async function getLocationPointID(lat, lng) {
 }
 
 async function getDayTemperaturesOfYearsByPointID(activeYear, pointID) {
-	const getUrlOfPointDayTemperaturesByYear = year =>
+	const getYearURL = year =>
 		`https://maps.kosmosnimki.ru/rest/ver1/layers/11A381497B4A4AE4A4ED6580E1674B72/search?
 			query=year(%22date%22)=${year}%20and%20%22gridpoint_id%22=${pointID}&apikey=6Q81IXBUQ7`;
 
-	const previousYear = activeYear - 1;
-
-	const urlOfGetActiveYearPointDayTemperatures = getUrlOfPointDayTemperaturesByYear(activeYear);
-	const urlOfPreviousYearPointDayTemperatures = getUrlOfPointDayTemperaturesByYear(previousYear);
-
-	const [previousYearTemperatures, activeYearTemperatures] =
-		await Promise.all([
-			axios.get(urlOfPreviousYearPointDayTemperatures),
-			axios.get(urlOfGetActiveYearPointDayTemperatures)
-		]);
-
-	const getFeatures = data =>
-		data ? data.features : [];
+	const years = await Promise.all(initialState.defaultYears.map(year => axios.get(getYearURL(year))));
+	const getFeatures = response => response.data ? response.data.features : [];
 
 	let temperaturesGroupedByYear = {
-		[activeYear]: getFeatures(activeYearTemperatures.data),
-		[previousYear]: getFeatures(previousYearTemperatures.data)
+		...years.reduce((res, year, i) => {
+			res[initialState.defaultYears[i]] = getFeatures(year);
+			return res;
+		}, {})
 	}
 
 	return temperaturesGroupedByYear;
@@ -69,6 +61,7 @@ export function fetchPointWithYearsTemperatures(lat, lng) {
 		}
 	}
 }
+
 
 export function updateActiveYearAndYearsTemperatures(activeYear) {
 	return async (dispatch, getState) => {

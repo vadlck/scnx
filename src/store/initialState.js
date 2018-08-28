@@ -3,5 +3,6 @@ export default {
 	pointTemperaturesGroupedByYear: null,
 	pointID: null,
 	activeYear: 2018,
-	isLoading: false
+	isLoading: false,
+	defaultYears: [2015, 2016, 2017, 2018]
 }

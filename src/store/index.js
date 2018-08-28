@@ -3,8 +3,10 @@ import initialState from './initialState';
 import reduser from './reduser';
 import thunk from 'redux-thunk';
 
-export default createStore(
+const store = createStore(
 	reduser,
 	initialState,
 	applyMiddleware(thunk)
 );
+
+export default store;

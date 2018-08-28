@@ -9,7 +9,7 @@ const mapStateToProps = state => ({
 	isLoading: state.isLoading,
 	pointLocation: state.pointLocation,
 	temperatureRatioChartData: getTemperatureRatioChartData(state),
-	years: [2015, 2016, 2017, 2018]
+	years: state.defaultYears
 });
 
 const mapDispatchToProps = dispatch => ({

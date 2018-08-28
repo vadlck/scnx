@@ -130,8 +130,8 @@ class TemperatureRatioChart extends Component {
 					left: 40
 				})
 
-			chart.xAxis
-				.ticks(12)
+				chart.xAxis
+				//.ticks(this.props.activeYear === 2018 ? 8 : 12)
 				.tickFormat(function (month) {
 					return months[month];
 				})

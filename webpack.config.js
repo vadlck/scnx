@@ -1,11 +1,14 @@
 const path = require('path');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+
+let hash = '213231';
 
 module.exports = {
 	entry: './src',
 	output: {
 		path: path.join(__dirname, 'public'),
-		filename: 'main.js'
+		filename: 'main.[hash].js'
 	},
 	devServer: {
 		contentBase: path.join(__dirname, 'public')
@@ -44,6 +47,9 @@ module.exports = {
 		]
 	},
 	plugins: [
-		new MiniCssExtractPlugin('main.css')
+		new MiniCssExtractPlugin('main.css'),
+		new HtmlWebpackPlugin({
+			template: path.join(__dirname, 'public/index.html')
+		})
 	]
 }
